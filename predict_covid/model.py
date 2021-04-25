@@ -24,9 +24,6 @@ class CovidModel:
     model_path = config('MODEL_PATH')
     model = None
 
-    def __init__(self):
-        self.model = self.load_model()
-
     def get_arima_model(self):
         return pm.ARIMA(
             order=(2, 1, 2),
@@ -51,6 +48,10 @@ class CovidModel:
     def check_model_exists(self):
         return os.path.isfile(self.model_path)
 
+    @property
+    def model_already_loaded(self):
+        return not self.model is None
+
     def get_new_model(self, force_remote_dataset=False):
         model = self.get_arima_model()
         model = self.fit_model(model, force_remote_dataset)
@@ -58,11 +59,13 @@ class CovidModel:
         return model
 
     def load_model(self):
+        if self.model_already_loaded:
+            return
+            
         if self.check_model_exists:
-            model = self.read_model_from_disk()
+            self.model = self.read_model_from_disk()
         else: 
-            model = self.get_new_model()
-        return model
+            self.model = self.get_new_model()
 
     def format_response(self, forecast: np.array):
         resposnse = {
