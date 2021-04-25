@@ -2,15 +2,19 @@ import pmdarima as pm
 import pickle
 import os
 
-from data.data_provider import DataProvider
+import numpy as np
 from decouple import config
 
+from predict_covid.utils import singleton
+from data.data_provider import DataProvider
 
+@singleton
 class CovidModel:
     """
     COVID Model
     Model trained with daily covid cases to predict the future.
     Serialize the ARIMA's model in disk so isn't necessary refit
+
     The model was hyper parametrized using the estimator auto_arima,
     for more details check "eda - covid19" directory, all jupyter
     notebooks used are available.
@@ -59,10 +63,21 @@ class CovidModel:
             model = self.get_new_model()
         return model
 
+    def format_response(self, forecast: np.array):
+        resposnse = {
+            str(day + 1): int(cases)
+            for day, cases in enumerate(forecast.tolist())
+        }
+        return resposnse
+        
+
     def predict(self, days=1):
         if days <= 0:
             raise ValueError("Steps must be greater than zero")
         
         forecast = self.model.predict(days)
+        response = self.format_response(forecast)
 
-        return forecast
+        return response
+
+    
