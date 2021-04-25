@@ -6,7 +6,7 @@ import numpy as np
 from decouple import config
 
 from predict_covid.utils import singleton
-from data.data_provider import DataProvider
+from predict_covid.data_provider import DataProvider
 
 @singleton
 class CovidModel:
