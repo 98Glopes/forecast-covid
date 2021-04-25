@@ -33,7 +33,8 @@ class CovidModel:
             seasonal_order=(2, 0, 2, 12)
         )
 
-    def fit_model(self, model: pm.ARIMA):
+    def fit_model(self, model: pm.ARIMA, force_remote_dataset: bool):
+        remote_dataset = self.use_remote_dataset or force_remote_dataset
         data = self.data_provider.provide(self.use_remote_dataset)
         return model.fit(data)
 
@@ -50,9 +51,9 @@ class CovidModel:
     def check_model_exists(self):
         return os.path.isfile(self.model_path)
 
-    def get_new_model(self):
+    def get_new_model(self, force_remote_dataset=False):
         model = self.get_arima_model()
-        model = self.fit_model(model)
+        model = self.fit_model(model, force_remote_dataset)
         self.write_model_on_disk(model)
         return model
 
