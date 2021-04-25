@@ -29,6 +29,7 @@ if __name__ == '__main__':
     model = CovidModel()
 
     if args.method == 'predict':
+        model.load_model()
         forecast = model.predict(days=args.days)
         print_results(forecast)
 
