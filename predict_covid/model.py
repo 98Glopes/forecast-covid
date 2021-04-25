@@ -6,51 +6,63 @@ from data.data_provider import DataProvider
 from decouple import config
 
 
-
-def get_arima_model():
-    return pm.ARIMA(
-        order=(2, 1, 2),
-        seasonal_order=(2, 0, 2, 12)
-    )
-
-def fit_model(model: pm.ARIMA):
-    data = DataProvider().provide(True)
-    return model.fit(data)
-
-def write_model_on_disk(model):
+class CovidModel:
+    """
+    COVID Model
+    Model trained with daily covid cases to predict the future.
+    Serialize the ARIMA's model in disk so isn't necessary refit
+    The model was hyper parametrized using the estimator auto_arima,
+    for more details check "eda - covid19" directory, all jupyter
+    notebooks used are available.
+    """
+    data_provider = DataProvider()
+    use_remote_dataset = config('USE_REMOTE_DATASET')
     model_path = config('MODEL_PATH')
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
+    model = None
 
-def read_model_from_disk():
-    model_path = config('MODEL_PATH')
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    return model
+    def __init__(self):
+        self.model = self.load_model()
 
-def check_model_exists():
-    model_path = config('MODEL_PATH')
-    return os.path.isfile(model_path)
+    def get_arima_model(self):
+        return pm.ARIMA(
+            order=(2, 1, 2),
+            seasonal_order=(2, 0, 2, 12)
+        )
 
-def get_new_model():
-    model = get_arima_model()
-    model = fit_model(model)
-    write_model_on_disk(model)
-    return model
+    def fit_model(self, model: pm.ARIMA):
+        data = self.data_provider.provide(self.use_remote_dataset)
+        return model.fit(data)
 
-def load_model():
-    if check_model_exists():
-        model = read_model_from_disk()
-    else: 
-        model = get_new_model()
-    return model
+    def write_model_on_disk(self, model):
+        with open(self.model_path, 'wb') as f:
+            pickle.dump(model, f)
 
-def predict(days=1):
-    if days <= 0:
-        raise ValueError("Steps must be greater than zero")
-    
-    model = load_model()
-    forecast = model.predict(days)
+    def read_model_from_disk(self):
+        with open(self.model_path, 'rb') as f:
+            model = pickle.load(f)
+        return model
 
-    return forecast
-    
+    @property
+    def check_model_exists(self):
+        return os.path.isfile(self.model_path)
+
+    def get_new_model(self):
+        model = self.get_arima_model()
+        model = self.fit_model(model)
+        self.write_model_on_disk(model)
+        return model
+
+    def load_model(self):
+        if self.check_model_exists:
+            model = self.read_model_from_disk()
+        else: 
+            model = self.get_new_model()
+        return model
+
+    def predict(self, days=1):
+        if days <= 0:
+            raise ValueError("Steps must be greater than zero")
+        
+        forecast = self.model.predict(days)
+
+        return forecast
