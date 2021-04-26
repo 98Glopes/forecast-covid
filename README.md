@@ -101,4 +101,45 @@ Diferentemente da CLI, a saída do método `.predict` é um dicionário, o retor
 {'1': 855684, '2': 798035}
 ```
 ## Executar com Docker
+Para exemplificar o uso do sistema dentro um container docker, foi criado uma simples API HTTP utilizando o framework `flask`.
 
+Para criar a imagem, basta executar o comando:
+```
+docker build --tag forecast_covid .
+```
+E em seguida para executar:
+```
+docker run --env-file ./env -p 8000:8000 forecast_covid
+```
+
+### Utilização da API
+A API HTTP disponbilizá duas rotas na porta `8000`, uma para predição e outra para update. Ambas aceitam somente requisições do tipo `GET`.
+
+Para realizar a predição:
+```
+curl 127.0.0.1:8000/forecast-covid/predict/2/
+```
+E o resultado deverá ser:
+```python
+{'1': 855684, '2': 798035}
+```
+
+Para atualizar o modelo:
+```
+curl 127.0.0.1:8000/forecast-covid/update/
+```
+E o resultado deverá ser:
+```python
+{'message': 'Updated model'}
+```
+
+## Proposta de Arquitetura e Infraestrutura
+Assim como foi feito no Dockerfile, para distribuição desse modelo eu aconselharia a utilização de uma API HTTP, entretanto com algumas modificações de modo a melhorar a performance e a escalabilidade.
+
+A primeira alteração seria primeiramente hospedar todos os serviços em algum serviço de nuvem compativel, e por tanto, em vez de salvar o modelo em binário em disco, salvar no serviço de storage disponivel, facilitando a sua manutenção e interação com outros micro serviços além da API principal.
+
+Seria interessante também, dado a natureza das informações que são atualizadas diariamentes, que o modelo fosse atualizado periodicamente, e pra tal tarefa poderia ser utilizado um script executado por um `cron job` em intervalos pré-determinados.
+
+Diferente de outros modelos de Machine Learning, o algoritimo `ARIMA` permite que o modelo seja atualizado sempre que dados novos estiverem disponiveis, sem precisar que o mesmo seja treinado do zero novamente. 
+
+Além dos recursos citados, a API também pode contar com um sistema de cache externo (como Redis ou Memcached) para salvar os resultados já calculados não sendo necessários calculalos de novo. A adoção desses recursos descentralizados (como usar uma memória cache externa, e salvar o modelo binário em um storage) permite que multiplas instâncias da API possam utilizar-se do mesmo modelo base, podendo incrementar de forma significativa a sua disponibilidade.
