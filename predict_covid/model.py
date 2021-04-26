@@ -20,7 +20,7 @@ class CovidModel:
     notebooks used are available.
     """
     data_provider = DataProvider()
-    use_remote_dataset = config('USE_REMOTE_DATASET')
+    use_remote_dataset = config('USE_REMOTE_DATASET', cast=bool)
     model_path = config('MODEL_PATH')
     model = None
 
@@ -61,7 +61,6 @@ class CovidModel:
     def load_model(self):
         if self.model_already_loaded:
             return
-            
         if self.check_model_exists:
             self.model = self.read_model_from_disk()
         else: 
@@ -78,7 +77,8 @@ class CovidModel:
     def predict(self, days=1):
         if days <= 0:
             raise ValueError("Steps must be greater than zero")
-        
+        days = int(days)
+
         forecast = self.model.predict(days)
         response = self.format_response(forecast)
 
