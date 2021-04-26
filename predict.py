@@ -3,7 +3,7 @@ import warnings
 
 from predict_covid.model import CovidModel
 
-warnings.simplefilter('ignore')
+#warnings.simplefilter('ignore')
 
 def print_results(forecast):
     for day, cases in forecast.items():
@@ -14,7 +14,7 @@ if __name__ == '__main__':
         description='Provide a CLI to CovidModel'
         )
     parser.add_argument(
-        'method', metavar='M', type=str,
+        'method', type=str,
         help='Choice between predict or update model',
         choices=['predict', 'update']                
         )
