@@ -3,7 +3,7 @@ import warnings
 
 from predict_covid.model import CovidModel
 
-#warnings.simplefilter('ignore')
+warnings.simplefilter('ignore')
 
 def print_results(forecast):
     for day, cases in forecast.items():
