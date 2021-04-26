@@ -54,6 +54,7 @@ Para o seu correto funcionamento é necessário configurar algumas variaveis de 
 * `DATASET_GITHUB_URL`: `URL`que aponta para o `dataset` disponivilizado pelo OWID.
 * `MODEL_PATH`: Caminho onde o modelo será salvo em um arquivo binário com a extensão `.pkl`. 
 * `USE_REMOTE_DATASET`: Flag que sinaliza se o sistema usará os dados locais ou os dados remotos.
+* `FLASK_APP`: Caminho para o arquivo que contem o app flask.
 
 ### Interface de linha de comando CLI
 A interface de linha de comando está disponivel a partir do arquivo `predict.py` e dispõe de duas funcionalidades: Fazer uma nova predição e atualizar o modelo.

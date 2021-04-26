@@ -62,6 +62,7 @@ class CovidModel:
             self.model = self.read_model_from_disk()
         else: 
             self.model = self.get_new_model()
+        return self
 
     def format_response(self, forecast: np.array):
         resposnse = {
