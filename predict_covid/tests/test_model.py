@@ -28,10 +28,12 @@ def test_predict(model):
     assert len(forecast.items()) == days
 
 
-def test_predict_zero_and_negative_days(model):
+def test_predict_zero(model):
     
     with pytest.raises(ValueError):
         model.predict(days=0)
+
+def test_predict_negative_days(model):
 
     with pytest.raises(ValueError):
         model.predict(days=-999)
