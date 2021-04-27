@@ -110,7 +110,7 @@ docker build --tag forecast_covid .
 ```
 E em seguida para executar:
 ```
-docker run --env-file ./env -p 8000:8000 forecast_covid
+docker run --env-file ./.env -p 8000:8000 forecast_covid
 ```
 
 ### Utilização da API
